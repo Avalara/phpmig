@@ -6,6 +6,7 @@
 namespace Phpmig\Migration;
 
 use Phpmig\Adapter\AdapterInterface,
+    Phpmig\Adapter\AdapterEventListener,
     Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -99,18 +100,56 @@ class Migrator
         $start = microtime(1);
         $migration->setContainer($this->getContainer());
         $migration->init();
-        $migration->{$direction}();
-        $this->getAdapter()->{$direction}($migration);
+        $runInTransaction = $migration->runInTransaction();
+        if ($runInTransaction === True) {
+            $migration->getContainer()['db']->beginTransaction();
+        }
+        $successfulTransaction = True;
+        try {
+            $migration->{$direction}();
+            $this->getAdapter()->{$direction}($migration);
+            if ($runInTransaction === True) {
+                $successfulTransaction = $migration->getContainer()['db']->commit();
+            }
+        } catch (\PDOException $e) {
+            $successfulTransaction = False;
+            if ($runInTransaction === True) {
+                $migration->getContainer()['db']->rollback();
+            }
+        }
         $end = microtime(1);
-        $this->getOutput()->writeln(sprintf(
-            ' == <info>' .
-            $migration->getVersion() . ' ' .
-            $migration->getName() . '</info> ' .
-            '<comment>' .
-            ($direction == 'up' ? 'migrated ' : 'reverted ') .
-            sprintf("%.4fs", $end - $start) .
-            '</comment>'
-        ));
+
+        if ($this->getAdapter() instanceof AdapterEventListener) {
+            $eventToTrigger = '';
+            if ($successfulTransaction) {
+                $eventToTrigger = $direction."SuccessEvent";
+            } else {
+                $eventToTrigger = $direction."FailEvent";
+            }
+            $migration->{$eventToTrigger}($this);
+        }
+
+        if ($successfulTransaction === True) {
+            $this->getOutput()->writeln(sprintf(
+                ' == <info>' .
+                $migration->getVersion() . ' ' .
+                $migration->getName() . '</info> ' .
+                '<comment>' .
+                ($direction == 'up' ? 'migrated ' : 'reverted ') .
+                sprintf("%.4fs", $end - $start) .
+                '</comment>'
+            ));
+        } else {
+            $this->getOutput()->writeln(sprintf(
+                ' == <info>' .
+                $migration->getVersion() . ' ' .
+                $migration->getName() . '</info>' .
+                '<comment>FAILED to ' .
+                ($direction == 'up' ? 'migrate ' : 'revert ') .
+                sprintf("%.4fs", $end - $start) .
+                '</comment>'
+            ));
+        }
     }
 
     /**

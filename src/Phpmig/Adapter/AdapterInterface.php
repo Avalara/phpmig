@@ -60,6 +60,3 @@ interface AdapterInterface
      */
     public function createSchema();
 }
-
-
-
