@@ -8,7 +8,7 @@ namespace Phpmig\Adapter\Doctrine;
 use \Doctrine\DBAL\Connection,
     \Doctrine\DBAL\Schema\Schema,
     \Phpmig\Migration\Migration,
-    \Phpmig\Adapter\AdapterInterface;
+    \Phpmig\Adapter\SimpleAdapter;
 
 /**
  * This file is part of phpmig
@@ -25,7 +25,7 @@ use \Doctrine\DBAL\Connection,
  *
  * @author      Dave Marshall <david.marshall@atstsolutions.co.uk>
  */
-class DBAL implements AdapterInterface
+class DBAL extends SimpleAdapter
 {
     /**
      * @var \Doctrine\DBAL\Connection

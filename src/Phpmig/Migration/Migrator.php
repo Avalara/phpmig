@@ -6,6 +6,7 @@
 namespace Phpmig\Migration;
 
 use Phpmig\Adapter\AdapterInterface,
+    Phpmig\Adapter\AdapterEventListener,
     Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -99,18 +100,30 @@ class Migrator
         $start = microtime(1);
         $migration->setContainer($this->getContainer());
         $migration->init();
-        $migration->{$direction}();
-        $this->getAdapter()->{$direction}($migration);
+        $sucess = $this->getAdapter()->execute($migration, $direction);
         $end = microtime(1);
-        $this->getOutput()->writeln(sprintf(
-            ' == <info>' .
-            $migration->getVersion() . ' ' .
-            $migration->getName() . '</info> ' .
-            '<comment>' .
-            ($direction == 'up' ? 'migrated ' : 'reverted ') .
-            sprintf("%.4fs", $end - $start) .
-            '</comment>'
-        ));
+
+        if ($sucess === True) {
+            $this->getOutput()->writeln(sprintf(
+                ' == <info>' .
+                $migration->getVersion() . ' ' .
+                $migration->getName() . '</info> ' .
+                '<comment>' .
+                ($direction == 'up' ? 'migrated ' : 'reverted ') .
+                sprintf("%.4fs", $end - $start) .
+                '</comment>'
+            ));
+        } else {
+            $this->getOutput()->writeln(sprintf(
+                ' == <info>' .
+                $migration->getVersion() . ' ' .
+                $migration->getName() . '</info>' .
+                '<comment> FAILED to ' .
+                ($direction == 'up' ? 'migrate ' : 'revert ') .
+                sprintf("%.4fs", $end - $start) .
+                '</comment>'
+            ));
+        }
     }
 
     /**
