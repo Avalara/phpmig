@@ -6,7 +6,6 @@
 namespace Phpmig\Migration;
 
 use Phpmig\Adapter\AdapterInterface,
-    Phpmig\Adapter\AdapterEventListener,
     Symfony\Component\Console\Output\OutputInterface;
 
 /**
