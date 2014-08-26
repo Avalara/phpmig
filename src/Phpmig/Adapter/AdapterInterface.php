@@ -47,6 +47,15 @@ interface AdapterInterface
     public function down(Migration $migration);
 
     /**
+     * Execute Migration
+     *
+     * @param Migration $migration
+     * @param string $direction
+     * @return Boolean
+     */
+    public function execute(Migration $migration, $direction);
+
+    /**
      * Is the schema ready? 
      *
      * @return bool

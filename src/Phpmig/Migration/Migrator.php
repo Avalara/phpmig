@@ -100,36 +100,10 @@ class Migrator
         $start = microtime(1);
         $migration->setContainer($this->getContainer());
         $migration->init();
-        $runInTransaction = $migration->runInTransaction();
-        if ($runInTransaction === True) {
-            $migration->getContainer()['db']->beginTransaction();
-        }
-        $successfulTransaction = True;
-        try {
-            $migration->{$direction}();
-            $this->getAdapter()->{$direction}($migration);
-            if ($runInTransaction === True) {
-                $successfulTransaction = $migration->getContainer()['db']->commit();
-            }
-        } catch (\PDOException $e) {
-            $successfulTransaction = False;
-            if ($runInTransaction === True) {
-                $migration->getContainer()['db']->rollback();
-            }
-        }
+        $sucess = $this->getAdapter()->execute($migration, $direction);
         $end = microtime(1);
 
-        if ($this->getAdapter() instanceof AdapterEventListener) {
-            $eventToTrigger = '';
-            if ($successfulTransaction) {
-                $eventToTrigger = $direction."SuccessEvent";
-            } else {
-                $eventToTrigger = $direction."FailEvent";
-            }
-            $migration->{$eventToTrigger}($this);
-        }
-
-        if ($successfulTransaction === True) {
+        if ($sucess === True) {
             $this->getOutput()->writeln(sprintf(
                 ' == <info>' .
                 $migration->getVersion() . ' ' .
@@ -144,7 +118,7 @@ class Migrator
                 ' == <info>' .
                 $migration->getVersion() . ' ' .
                 $migration->getName() . '</info>' .
-                '<comment>FAILED to ' .
+                '<comment> FAILED to ' .
                 ($direction == 'up' ? 'migrate ' : 'revert ') .
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'

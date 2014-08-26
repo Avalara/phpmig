@@ -223,17 +223,4 @@ class Migration
         $this->dialogHelper = $dialogHelper;
         return $this;
     }
-
-    /**
-     * Run up/down in a transaction.
-     *
-     * @return Boolean
-     */
-    public function runInTransaction()
-    {
-        return True;
-    }
 }
-
-
-
