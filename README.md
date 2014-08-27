@@ -350,6 +350,7 @@ If you have not implemented customs Adapters, you should be fine. If you did, th
 Example: how to use the new adapter execute()
 -----------
 
+```PHP
 class TransactionalSqlAdapter extends Adapter\PDO\Sql {
     public function __construct(\PDO $connection, $tableName) {
         parent::__construct($connection, $tableName);
@@ -374,6 +375,7 @@ class TransactionalSqlAdapter extends Adapter\PDO\Sql {
 $container['phpmig.adapter'] = $container->share(function() use ($container) {
     return new TransactionalSqlAdapter($container['db'], 'migrations');
 });
+```
 
 Copyright
 ---------
