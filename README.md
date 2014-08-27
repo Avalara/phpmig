@@ -341,13 +341,13 @@ layout of the code was inspired by [Symfony][symfony] and [Behat][behat]
 
 What is new in this fork
 -----------
-The change in this fork is that Migrator now calls Adater::execute() instead of calling Migration::up() and Adapter::up() - same for ::down(). Adater::execute() will call instead Migration::up() and Adapter::up(), which allows to override Addapter::execute() avoinding adding too much boilerplate in Migrations. 
+The change in this fork is that Migrator now calls Adapter::execute() instead of calling Migration::up() and Adapter::up() - same for ::down(). Adapter::execute() will call instead Migration::up() and Adapter::up(), which allows to override Adapter::execute() avoinding adding too much boilerplate in Migrations. 
 
 Adapting your code for this fork
 -----------
 If you have not implemented customs Adapters, you should be fine. If you did, then add "use \Phpmig\Adapter\SimpleAdapter;" and change "Foo implements AdapterInterface" with "Foo extends SimpleAdapter"
 
-Example: how to use the new adapter execute()
+Example: how to use the new Adapter::execute()
 -----------
 
 ```PHP
