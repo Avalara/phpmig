@@ -37,7 +37,7 @@ or adding to your project's `composer.json` file:
     {
         "require": {
             "php": ">=5.3.1",
-            "davedevelopment/phpmig": "*",
+            "edisonnica/phpmig": "*",
             "pimple/pimple": "1.*"
         },
 
@@ -338,6 +338,46 @@ Inspiration
 I basically started copying [ActiveRecord::Migrations][activerecordmigrations]
 in terms of the migration features, the bootstrapping was my own idea, the
 layout of the code was inspired by [Symfony][symfony] and [Behat][behat]
+
+What is new in this fork
+-----------
+The change in this fork is that Migrator now calls Adater::execute() instead of calling Migration::up() and Adapter::up() - same for ::down(). Adater::execute() will call instead Migration::up() and Adapter::up(), which allows to override Addapter::execute() avoinding adding too much boilerplate in Migrations. 
+
+Adapting your code for this fork
+-----------
+If you have not implemented customs Adapters, you should be fine. If you did, then add "use \Phpmig\Adapter\SimpleAdapter;" and change "Foo implements AdapterInterface" with "Foo extends SimpleAdapter"
+
+How to use the new adapter for this fork
+-----------
+
+class TransactionalSqlAdapter extends Adapter\PDO\Sql {
+
+    public function __construct(\PDO $connection, $tableName) {
+        parent::__construct($connection, $tableName);
+    }
+    
+    public function execute(Migration $migration, $direction) {
+        try {
+            $migration->getContainer()['db']->beginTransaction();
+            $success = parent::execute($migration, $direction);
+            if ($success === True) {
+                $successfulTransaction = $migration->getContainer()['db']->commit();
+            } else {
+                $migration->getContainer()['db']->rollback();
+                $successfulTransaction = False;
+            }
+        } catch (\PDOException $e) {
+            $migration->getContainer()['db']->rollback();
+            $successfulTransaction = False;
+        }
+
+        return $successfulTransaction;
+    }
+}
+
+$container['phpmig.adapter'] = $container->share(function() use ($container) {
+    return new TransactionalSqlAdapter($container['db'], 'migrations');
+});
 
 Copyright
 ---------
