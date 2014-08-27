@@ -347,15 +347,13 @@ Adapting your code for this fork
 -----------
 If you have not implemented customs Adapters, you should be fine. If you did, then add "use \Phpmig\Adapter\SimpleAdapter;" and change "Foo implements AdapterInterface" with "Foo extends SimpleAdapter"
 
-How to use the new adapter for this fork
+Example: how to use the new adapter execute()
 -----------
 
 class TransactionalSqlAdapter extends Adapter\PDO\Sql {
-
     public function __construct(\PDO $connection, $tableName) {
         parent::__construct($connection, $tableName);
     }
-    
     public function execute(Migration $migration, $direction) {
         try {
             $migration->getContainer()['db']->beginTransaction();
@@ -370,11 +368,9 @@ class TransactionalSqlAdapter extends Adapter\PDO\Sql {
             $migration->getContainer()['db']->rollback();
             $successfulTransaction = False;
         }
-
         return $successfulTransaction;
     }
 }
-
 $container['phpmig.adapter'] = $container->share(function() use ($container) {
     return new TransactionalSqlAdapter($container['db'], 'migrations');
 });
