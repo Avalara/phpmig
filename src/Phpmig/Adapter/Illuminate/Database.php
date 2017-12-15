@@ -7,13 +7,13 @@ namespace Phpmig\Adapter\Illuminate;
 
 use PDO;
 use \Phpmig\Migration\Migration,
-    \Phpmig\Adapter\AdapterInterface;
+    \Phpmig\Adapter\SimpleAdapter;
 use RuntimeException;
 
 /**
  * @author Andrew Smith http://github.com/silentworks
  */
-class Database implements AdapterInterface
+class Database extends SimpleAdapter
 {
     /**
      * @var string

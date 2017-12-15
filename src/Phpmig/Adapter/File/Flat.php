@@ -5,7 +5,7 @@
  */
 namespace Phpmig\Adapter\File;
 
-use \Phpmig\Adapter\AdapterInterface,
+use \Phpmig\Adapter\SimpleAdapter,
     \Phpmig\Migration\Migration;
 
 /**
@@ -22,7 +22,7 @@ use \Phpmig\Adapter\AdapterInterface,
  *
  * @author      Dave Marshall <david.marshall@atstsolutions.co.uk
  */
-class Flat implements AdapterInterface
+class Flat implements SimpleAdapter
 {
     /**
      * @string

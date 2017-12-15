@@ -224,6 +224,3 @@ class Migration
         return $this;
     }
 }
-
-
-
