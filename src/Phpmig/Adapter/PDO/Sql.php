@@ -3,7 +3,7 @@
 namespace Phpmig\Adapter\PDO;
 
 use Phpmig\Migration\Migration,
-    Phpmig\Adapter\AdapterInterface,
+    Phpmig\Adapter\SimpleAdapter,
     PDO;
 
 /**
@@ -12,7 +12,7 @@ use Phpmig\Migration\Migration,
  * @author Samuel Laulhau https://github.com/lalop
  */
 
-class Sql implements AdapterInterface
+class Sql extends SimpleAdapter
 {
 
     /**
@@ -69,7 +69,6 @@ class Sql implements AdapterInterface
     public function up(Migration $migration)
     {
         $sql = $this->getQuery('up');
-
         $this->connection->prepare($sql)
                 ->execute(array(':version' => $migration->getVersion()));
 

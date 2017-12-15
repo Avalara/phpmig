@@ -6,7 +6,7 @@
 namespace Phpmig\Adapter\Zend;
 
 use \Phpmig\Migration\Migration,
-    \Phpmig\Adapter\AdapterInterface;
+    \Phpmig\Adapter\SimpleAdapter;
 
 /**
  * This file is part of phpmig
@@ -23,7 +23,7 @@ use \Phpmig\Migration\Migration,
  *
  * @author      Wojtek Gancarczyk  <gancarczyk@gmail.com>
  */
-class Db implements AdapterInterface
+class Db extends SimpleAdapter
 {
     const MSSQL_CREATE_STATEMENT = 'CREATE TABLE %s ( version VARCHAR(255) NOT NULL );';
     const MYSQL_CREATE_STATEMENT = 'CREATE TABLE `%s` ( version VARCHAR(255) UNSIGNED NOT NULL );';
