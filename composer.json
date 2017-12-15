@@ -1,9 +1,9 @@
 {
-    "name": "edisonnica/phpmig",
+    "name": "Avalara/phpmig",
     "type": "library",
     "description": "Simple migrations system for php",
     "keywords": ["migrations", "database migrations"],
-    "homepage": "http://github.com/edisonnica/phpmig",
+    "homepage": "http://github.com/Avalara/phpmig",
     "license": "MIT",
     "authors": [{
         "name": "Dave Marshall",
@@ -15,8 +15,8 @@
         "email": "david@panmedia.co.nz"
     },
     {
-        "name": "Edison Nica",
-        "email": "edison.nica@gmail.com"
+        "name": "Avalara Developer Relations",
+        "homepage": "https://developer.avalara.com"
     }],
     "require": {
         "php": ">=5.3.2",
