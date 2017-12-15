@@ -38,7 +38,7 @@ class GenerateCommand extends AbstractCommand
              ->addArgument('path', InputArgument::OPTIONAL, 'The directory in which to put the migration ( optional if phpmig.migrations_path is setted )')
              ->setDescription('Generate a new migration')
              ->setHelp(<<<EOT
-The <info>generate</info> command creates a new migration with the name and path specified 
+The <info>generate</info> command creates a new migration with the name and path specified
 
 <info>phpmig generate Dave ./migrations</info>
 
@@ -75,7 +75,8 @@ EOT
 
         $path = realpath($path);
 
-        $migrationName = $input->getArgument('name');
+        $migrationName = $this->transMigName($input->getArgument('name'));
+
         $basename  = date('YmdHis') . '_' . $migrationName . '.php';
 
         $path = $path . DIRECTORY_SEPARATOR . $basename;
@@ -98,9 +99,14 @@ EOT
                 ));
             }
 
-            ob_start();
-            include($migrationsTemplatePath);
-            $contents = ob_get_clean();
+            if (preg_match('/\.php$/', $migrationsTemplatePath)) {
+                ob_start();
+                include($migrationsTemplatePath);
+                $contents = ob_get_clean();
+            } else {
+                $contents = file_get_contents($migrationsTemplatePath);
+                $contents = sprintf($contents, $className);
+            }
         } else {
             $contents = <<<PHP
 <?php
@@ -142,6 +148,15 @@ PHP;
         );
 
         return;
+    }
+
+    protected function transMigName($migrationName)
+    {
+        //http://php.net/manual/en/language.variables.basics.php
+        if (preg_match('/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $migrationName)) {
+            return $migrationName;
+        }
+        return 'mig' . $migrationName;
     }
 }
 

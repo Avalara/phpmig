@@ -173,28 +173,31 @@ abstract class AbstractCommand extends Command
         $container = $this->getContainer();
         $set = $input->getOption('set');
 
-        $migrationsConfigured = isset($container['phpmig.migrations']) || isset($container['phpmig.migrations_path']) || isset($container['phpmig.sets'][$set]['migrations_path']);
-        $validMigrationFiles = !isset($container['phpmig.migrations']) || is_array($container['phpmig.migrations']);
-        $validMigrationPath = !isset($container['phpmig.migrations_path']) || is_dir($container['phpmig.migrations_path']);
-        $validSetsMigrationPath = !isset($container['phpmig.sets']) || !isset($container['phpmig.sets'][$set]['migrations_path']) || is_dir($container['phpmig.sets'][$set]['migrations_path']);
-
-        if (!$migrationsConfigured || !$validMigrationFiles || !$validMigrationPath || !$validSetsMigrationPath) {
-            throw new \RuntimeException(
-                $this->getBootstrap()
-                . ' must return container with array at phpmig.migrations or migrations default path at '
-                . 'phpmig.migrations_path or migrations default path at phpmig.sets'
-            );
+        if (!isset($container['phpmig.migrations']) && !isset($container['phpmig.migrations_path']) && !isset($container['phpmig.sets'][$set]['migrations_path'])) {
+            throw new \RuntimeException($this->getBootstrap() . ' must return container with array at phpmig.migrations or migrations default path at phpmig.migrations_path or migrations default path at phpmig.sets');
         }
 
         $migrations = array();
         if (isset($container['phpmig.migrations'])) {
+            if (!is_array($container['phpmig.migrations'])) {
+                throw new \RuntimeException($this->getBootstrap() . ' phpmig.migrations must be an array.');
+            }
+
             $migrations = $container['phpmig.migrations'];
         }
         if (isset($container['phpmig.migrations_path'])) {
+            if (!is_dir($container['phpmig.migrations_path'])) {
+                throw new \RuntimeException($this->getBootstrap() . ' phpmig.migrations_path must be a directory.');
+            }
+
             $migrationsPath = realpath($container['phpmig.migrations_path']);
             $migrations = array_merge($migrations, glob($migrationsPath . DIRECTORY_SEPARATOR . '*.php'));
         }
         if (isset($container['phpmig.sets']) && isset($container['phpmig.sets'][$set]['migrations_path'])) {
+            if (!is_dir($container['phpmig.sets'][$set]['migrations_path'])) {
+                throw new \RuntimeException($this->getBootstrap() . " ['phpmig.sets']['" . $set . "']['migrations_path'] must be a directory.");
+            }
+
             $migrationsPath = realpath($container['phpmig.sets'][$set]['migrations_path']);
             $migrations = array_merge($migrations, glob($migrationsPath . DIRECTORY_SEPARATOR . '*.php'));
         }
@@ -217,6 +220,14 @@ abstract class AbstractCommand extends Command
                 $migrationName = substr($migrationName, 0, strpos($migrationName, '.'));
             }
             $class = $this->migrationToClassName($migrationName);
+
+            if ($this instanceof GenerateCommand
+                && $class == $this->migrationToClassName($input->getArgument('name'))) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Migration Class "%s" already exists',
+                    $class
+                ));
+            }
 
             if (isset($names[$class])) {
                 throw new \InvalidArgumentException(sprintf(
@@ -359,13 +370,32 @@ abstract class AbstractCommand extends Command
     
     /**
      * transform create_table_user to CreateTableUser
+     * @param $migrationName
+     * @return string
      */
     protected function migrationToClassName( $migrationName )
     {
         $class = str_replace('_', ' ', $migrationName);
         $class = ucwords($class);
-        return str_replace(' ', '', $class);
+        $class = str_replace(' ', '', $class);
+
+        if (!$this->isValidClassName($class)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Migration class "%s" is invalid',
+                $class
+            ));
+        }
+
+        return $class;
+    }
+
+    /**
+     * @param $className
+     * @return bool
+     * @see http://php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class
+     */
+    private function isValidClassName($className)
+    {
+        return preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $className) === 1;
     }
 }
-
-
