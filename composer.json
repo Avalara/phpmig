@@ -1,5 +1,5 @@
 {
-    "name": "Avalara/phpmig",
+    "name": "avalara/phpmig",
     "type": "library",
     "description": "Simple migrations system for php",
     "keywords": ["migrations", "database migrations"],
