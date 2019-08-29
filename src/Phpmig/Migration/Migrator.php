@@ -83,7 +83,6 @@ class Migrator
      *
      * @param Migration $migration
      * @param string $direction
-     * @return void
      */
     protected function run(Migration $migration, $direction = 'up')
     {
@@ -112,6 +111,7 @@ class Migrator
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'
             ));
+            return 0;
         } else {
             $this->getOutput()->writeln(sprintf(
                 ' == <info>' .
@@ -122,6 +122,7 @@ class Migrator
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'
             ));
+            return 1;
         }
     }
 
