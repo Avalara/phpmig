@@ -379,9 +379,10 @@ abstract class AbstractCommand extends Command
      * transform create_table_user to CreateTableUser
      * @param $migrationName
      * @param $clustered
+     * @param $includeNamespace
      * @return string
      */
-    protected function migrationToClassName( $migrationName, $clustered = true)
+    protected function migrationToClassName( $migrationName, $clustered = true, $includeNamespace = true)
     {
         $class = str_replace('_', ' ', $migrationName);
         $class = ucwords($class);
@@ -394,13 +395,16 @@ abstract class AbstractCommand extends Command
             ));
         }
 
-        $namespace = 'CertCapture\Migration\\';
+        if ($includeNamespace) {
 
-        if ($clustered) {
-            $namespace .= 'Clustered\\';
+            $namespace = 'CertCapture\Migration\\';
+
+            if ($clustered) {
+                $namespace .= 'Clustered\\';
+            }
+
+            $class = $namespace . $class;
         }
-
-        $class = $namespace.$class;
 
 
         return $class;
