@@ -170,12 +170,16 @@ abstract class AbstractCommand extends Command
      */
     protected function bootstrapMigrations(InputInterface $input, OutputInterface $output)
     {
+
+
         $container = $this->getContainer();
         $set = $input->getOption('set');
 
         if (!isset($container['phpmig.migrations']) && !isset($container['phpmig.migrations_path']) && !isset($container['phpmig.sets'][$set]['migrations_path'])) {
             throw new \RuntimeException($this->getBootstrap() . ' must return container with array at phpmig.migrations or migrations default path at phpmig.migrations_path or migrations default path at phpmig.sets');
         }
+
+
 
         $migrations = array();
         if (isset($container['phpmig.migrations'])) {
@@ -185,6 +189,7 @@ abstract class AbstractCommand extends Command
 
             $migrations = $container['phpmig.migrations'];
         }
+
         if (isset($container['phpmig.migrations_path'])) {
             if (!is_dir($container['phpmig.migrations_path'])) {
                 throw new \RuntimeException($this->getBootstrap() . ' phpmig.migrations_path must be a directory.');
@@ -193,6 +198,7 @@ abstract class AbstractCommand extends Command
             $migrationsPath = realpath($container['phpmig.migrations_path']);
             $migrations = array_merge($migrations, glob($migrationsPath . DIRECTORY_SEPARATOR . '*.php'));
         }
+
         if (isset($container['phpmig.sets']) && isset($container['phpmig.sets'][$set]['migrations_path'])) {
             if (!is_dir($container['phpmig.sets'][$set]['migrations_path'])) {
                 throw new \RuntimeException($this->getBootstrap() . " ['phpmig.sets']['" . $set . "']['migrations_path'] must be a directory.");
@@ -202,6 +208,7 @@ abstract class AbstractCommand extends Command
             $migrations = array_merge($migrations, glob($migrationsPath . DIRECTORY_SEPARATOR . '*.php'));
         }
         $migrations = array_unique($migrations);
+
 
         $versions = array();
         $names = array();
@@ -219,7 +226,7 @@ abstract class AbstractCommand extends Command
             if (false !== strpos($migrationName, '.')) {
                 $migrationName = substr($migrationName, 0, strpos($migrationName, '.'));
             }
-            $class = $this->migrationToClassName($migrationName);
+            $class = $this->migrationToClassName($migrationName, (strpos($migrationsPath, 'clustered') !== false));
 
             if ($this instanceof GenerateCommand
                 && $class == $this->migrationToClassName($input->getArgument('name'))) {
@@ -371,9 +378,10 @@ abstract class AbstractCommand extends Command
     /**
      * transform create_table_user to CreateTableUser
      * @param $migrationName
+     * @param $clustered
      * @return string
      */
-    protected function migrationToClassName( $migrationName )
+    protected function migrationToClassName( $migrationName, $clustered = true)
     {
         $class = str_replace('_', ' ', $migrationName);
         $class = ucwords($class);
@@ -385,6 +393,15 @@ abstract class AbstractCommand extends Command
                 $class
             ));
         }
+
+        $namespace = 'CertCapture\Migration\\';
+
+        if ($clustered) {
+            $namespace .= 'Clustered\\';
+        }
+
+        $class = $namespace.$class;
+
 
         return $class;
     }
