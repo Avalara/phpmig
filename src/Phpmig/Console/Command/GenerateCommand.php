@@ -108,8 +108,17 @@ EOT
                 $contents = sprintf($contents, $className);
             }
         } else {
+
+            $namespace = 'namespace CertCapture\Migration\\';
+
+            if (strpos($path, 'clustered')) {
+                $namespace .= 'Clustered';
+            }
+
             $contents = <<<PHP
 <?php
+
+$namespace;
 
 use Phpmig\Migration\Migration;
 
