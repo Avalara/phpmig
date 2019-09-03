@@ -81,6 +81,8 @@ EOT
 
         $path = $path . DIRECTORY_SEPARATOR . $basename;
 
+        $clustered = (strpos($path, 'clustered') !== false);
+
         if (file_exists($path)) {
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" already exists',
@@ -88,7 +90,7 @@ EOT
             ));
         }
 
-        $className = $this->migrationToClassName($migrationName);
+        $className = $this->migrationToClassName($migrationName, $clustered, false);
 
         if (isset($this->container['phpmig.migrations_template_path'])) {
             $migrationsTemplatePath = $this->container['phpmig.migrations_template_path'];
@@ -109,10 +111,10 @@ EOT
             }
         } else {
 
-            $namespace = 'namespace CertCapture\Migration\\';
+            $namespace = 'namespace CertCapture\Migration';
 
-            if (strpos($path, 'clustered')) {
-                $namespace .= 'Clustered';
+            if ($clustered) {
+                $namespace .= '\Clustered';
             }
 
             $contents = <<<PHP
