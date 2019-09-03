@@ -103,7 +103,7 @@ EOT
 
         ksort($migrations);
 
-        $output->writeln(" == <info>Found ".(sizeof($migrations) - sizeof($versions))." migrations to run.</info>");
+        //$output->writeln(" == <info>Found ".(sizeof($migrations) - sizeof($versions))." migrations to run.</info>");
 
         foreach($migrations as $migration) {
             if ($migration->getVersion() > $version) {
