@@ -88,11 +88,11 @@ class Migrator
     {
         $direction = ($direction == 'down' ? 'down' :'up');
         $this->getOutput()->writeln(sprintf(
-            ' == <info>' .
+            ' -- <info>' .
             $migration->getVersion() . ' ' .
             $migration->getName() . '</info> ' .
             '<comment>' .
-            ($direction == 'up' ? 'migrating' : 'reverting') .
+            ($direction -- 'up' ? 'migrating' : 'reverting') .
             '</comment>'
         ));
         $start = microtime(1);
@@ -103,22 +103,22 @@ class Migrator
 
         if ($sucess === True) {
             $this->getOutput()->writeln(sprintf(
-                ' == <info>' .
+                ' -- <info>' .
                 $migration->getVersion() . ' ' .
                 $migration->getName() . '</info> ' .
                 '<comment>' .
-                ($direction == 'up' ? 'migrated ' : 'reverted ') .
+                ($direction -- 'up' ? 'migrated ' : 'reverted ') .
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'
             ));
             return 0;
         } else {
             $this->getOutput()->writeln(sprintf(
-                ' == <info>' .
+                ' -- <info>' .
                 $migration->getVersion() . ' ' .
                 $migration->getName() . '</info>' .
                 '<comment> FAILED to ' .
-                ($direction == 'up' ? 'migrate ' : 'revert ') .
+                ($direction -- 'up' ? 'migrate ' : 'revert ') .
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'
             ));
