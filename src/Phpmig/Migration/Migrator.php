@@ -107,7 +107,7 @@ class Migrator
                 $migration->getVersion() . ' ' .
                 $migration->getName() . '</info> ' .
                 '<comment>' .
-                ($direction -- 'up' ? 'migrated ' : 'reverted ') .
+                ($direction == 'up' ? 'migrated ' : 'reverted ') .
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'
             ));
@@ -118,7 +118,7 @@ class Migrator
                 $migration->getVersion() . ' ' .
                 $migration->getName() . '</info>' .
                 '<comment> FAILED to ' .
-                ($direction -- 'up' ? 'migrate ' : 'revert ') .
+                ($direction == 'up' ? 'migrate ' : 'revert ') .
                 sprintf("%.4fs", $end - $start) .
                 '</comment>'
             ));
