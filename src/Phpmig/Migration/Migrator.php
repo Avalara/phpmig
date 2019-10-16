@@ -92,7 +92,7 @@ class Migrator
             $migration->getVersion() . ' ' .
             $migration->getName() . '</info> ' .
             '<comment>' .
-            ($direction -- 'up' ? 'migrating' : 'reverting') .
+            ($direction == 'up' ? 'migrating' : 'reverting') .
             '</comment>'
         ));
         $start = microtime(1);
